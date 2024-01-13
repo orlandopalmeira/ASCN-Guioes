@@ -1,0 +1,13 @@
+---
+- name: DB install and start
+  hosts: db
+  become: yes
+  roles:
+    - db
+
+- name: App swap
+  hosts: app
+  become: yes
+  roles:
+    - app
+    - {role: seed_app, when: 'seed_app|default("false") == "true"'} # o default("false") serve para indicar que se a variável seed_app não for definida pelo utilizador nalgum dos ficheiros ansible ou pela linha de comando, o ansible assumirá que ela terá o valor "false"

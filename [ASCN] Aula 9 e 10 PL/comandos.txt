@@ -1,0 +1,21 @@
+Windows:
+    scp .\install_g5.sh vagrant@192.168.68.101:
+    scp .\install_g5.sh vagrant@192.168.68.102:
+
+Duas máquinas:
+    bash install_g5.sh install_docker
+
+Server 1:
+    docker network create elastic
+    mkdir -p $HOME/esdata
+    docker run --name elasticsearch --net elastic -p 9200:9200 -p 9300:9300 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" -e "xpack.security.enabled=false" -v $HOME/esdata:/usr/share/elasticsearch/data docker.elastic.co/elasticsearch/elasticsearch:8.5.2
+    docker run --name kibana --net elastic -p 80:5601 -e ELASTICSEARCH_HOSTS="http://192.168.68.101:9200" -e "server.host=192.168.68.101" docker.elastic.co/kibana/kibana:8.5.2
+
+Server 2:
+    bash install_g5.sh install_swap
+    docker run --rm --network=host docker.elastic.co/beats/metricbeat:8.5.2 setup --dashboards -E setup.kibana.host=192.168.68.101:80
+    docker run --name metricbeat --user="root" -v /proc:/hostfs/proc:ro -v /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -e LIBBEAT_MONITORING_CGROUPS_HIERARCHY_OVERRIDE=/hostfs --network=host docker.elastic.co/beats/metricbeat:8.5.2 --strict.perms=false -system.hostfs=/hostfs -e -E output.elasticsearch.hosts=["192.168.68.101:9200"]
+
+
+
+https://dlcdn.apache.org//jmeter/

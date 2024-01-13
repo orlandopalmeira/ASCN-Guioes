@@ -1,0 +1,6 @@
+---
+- name: php artisan db:seed
+  become: yes
+  command: php artisan db:seed
+  args:
+    chdir: ./swap

@@ -1,0 +1,37 @@
+---
+# Deployment for MySQL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swap-deployment
+  labels:
+    app: swap
+    tier: application
+spec:
+  selector:
+    matchLabels:
+      app: swap
+  strategy:
+    type: Recreate # garante que 1 réplica está activa
+  template:
+    metadata: # alguns dados 
+      labels:
+        app: swap
+        tier: application
+    spec: # aqui adiciona-se as configurações do container
+      containers:
+      - name: swap
+        image: ascnuminho/swap:latest # imagem para os containers docker
+        env: # The variables below could be set on a ConfigMap object
+        - name: DB_HOST
+          value: mysql-service # não pode ser o ip da máquina virtual
+        - name: DB_DATABASE
+          value: swap
+        - name: DB_USERNAME
+          value: swapuser
+        - name: DB_PASSWORD
+          value: "123456"
+        - name: MIGRATE
+          value: "true"
+        ports:
+        - containerPort: 8000
